@@ -9,7 +9,7 @@ export function useWorkspace() {
   useEffect(()=>{ installStorage(); try { const session=JSON.parse(sessionStorage.getItem('ais-session')); if(session && Date.now()-session.at < 8*3600*1000) {const restored=accounts.find(a=>a.id===session.id)||null;setAccount(restored);if(restored?.admin&&!window.matchMedia('(max-width: 767px)').matches)setPage('insights');} }catch{} setReady(true); setOnline(navigator.onLine);
     const refresh=()=>setVersion(v=>v+1), on=()=>setOnline(navigator.onLine), prompt=e=>{e.preventDefault();setInstallPrompt(e);};
     const signout=()=>{sessionStorage.removeItem('ais-session');setAccount(null);setPage('home');};window.addEventListener('ais:logout',signout);window.addEventListener('ais:data',refresh);window.addEventListener('storage',refresh);window.addEventListener('online',on);window.addEventListener('offline',on);window.addEventListener('beforeinstallprompt',prompt);
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('sw.js',document.baseURI)).catch(()=>{});
     return()=>{window.removeEventListener('ais:logout',signout);window.removeEventListener('ais:data',refresh);window.removeEventListener('storage',refresh);window.removeEventListener('online',on);window.removeEventListener('offline',on);window.removeEventListener('beforeinstallprompt',prompt);};
   },[]);
   useEffect(()=>{if(toast){const t=setTimeout(()=>setToast(''),4500);return()=>clearTimeout(t);}},[toast]);

@@ -2,7 +2,7 @@
 
 Portal evaluasi fungsional berdasarkan dua file React yang disediakan. Warna brand utama #DD7A0F, #EEEBE2, #20242B, dan #1F3A5F dipertahankan. File asli di direktori induk tidak diubah.
 
-**Status: prototipe interaktif untuk UAT, belum HRIS produksi.** Login NIK, pembatasan menu, dan penyimpanan data bekerja pada browser. Jangan memasukkan data karyawan nyata. Preview saat ini tersedia lokal; publikasi privat belum dilakukan.
+**Status: prototipe interaktif untuk UAT, belum HRIS produksi.** Login NIK, pembatasan menu, dan penyimpanan data bekerja pada browser. Jangan memasukkan data karyawan nyata. Versi GitHub Pages menjalankan frontend demo dengan penyimpanan browser; belum terhubung ke backend produksi.
 
 ## Menjalankan
 
@@ -121,3 +121,15 @@ Contoh operasional mempunyai jalur tujuh level yang tersambung hingga toko: Dire
 Tampilan menyediakan Bagan organisasi, Jalur atasan, Direktori posisi, dan Level organisasi. Cabang dapat dibuka, difokuskan, atau dicari; breadcrumb mengikuti jalur induk tersimpan. Mobile menggunakan pohon vertikal dan navigasi bawah. Cakupan data tetap mengikuti role akun dan hanya menyertakan simpul/jalur atasan yang diperlukan. Struktur tidak mengubah role keamanan atau alur approval. Penyimpanan dan pembatasan akses ini masih demonstrasi di perangkat, bukan otorisasi server produksi.
 
 Pemeriksaan: `npm run test:analytics` mencakup jalur tujuh level, migrasi data lama, katalog dinamis, penempatan khusus, validasi urutan/siklus, dan pembatasan cakupan akses.
+
+## GitHub Pages
+
+Demo dapat dibuka melalui https://ais-hris.github.io/ais-hris/ setelah workflow **Deploy AIS People to GitHub Pages** selesai. Di Settings → Pages, pilih sumber **GitHub Actions**. Setiap push ke `main` menjalankan pengujian, membangun frontend, dan menerbitkan `dist-pages`. Build server/Worker yang sudah ada tetap tersedia melalui `npm run build`.
+
+```sh
+npm run build:pages
+npm run test:pages
+npm run preview:pages
+```
+
+Preview hasil statis: http://localhost:4173/ais-hris/. Entry Pages menggunakan view dan model aplikasi yang sama. Alamat aset, manifest, service worker, ikon dan halaman offline mendukung subdirektori repository. Penerbitan Pages tidak menyediakan API, database server atau sinkronisasi data; penyimpanan demo tetap lokal di browser pada origin GitHub Pages, terpisah dari localhost.
