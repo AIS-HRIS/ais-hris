@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import {pathToFileURL} from 'node:url';
+import {createElement as h,Fragment} from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+const result=await build({stdin:{contents:"export {default as ResponsiveTable,tableHeaderLabels} from './src/views/components/ResponsiveTable.jsx'; export {employeeNik} from './src/models/employeeIdentity.js'; export {accounts} from './src/models/workspace.js'; export {PnLRow,PnLCustomRow,buildPrintableHtml} from './src/legacy/Admin.jsx';",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',packages:'external',write:false,jsx:'automatic',plugins:[{name:'test-legacy-report-views',setup(b){b.onLoad({filter:/legacy\/Admin\.jsx$/},async args=>({contents:(await readFile(args.path,'utf8'))+'\nexport {PnLRow,PnLCustomRow,buildPrintableHtml};',loader:'jsx'}));}}]});
+await mkdir('.sites-runtime',{recursive:true});const target=new URL('../.sites-runtime/test-responsive-records.mjs',import.meta.url);await writeFile(target,result.outputFiles[0].text);const m=await import(pathToFileURL(target.pathname));
+const header=h('thead',null,h('tr',null,...['Nama','NIK','Toko','Status','Kontrak',''].map(v=>h('th',{key:v},v))));
+const record=h('tr',{key:'galuh'},h('td',null,'Galuh'),h('td',null,'20260005'),h('td',null,'Baros'),h('td',null,'Aktif'),h('td',null,'Tetap'),h('td',null,h('button',{onClick(){}},'Edit')));
+const detail=h('tr',{key:'detail'},h('td',{colSpan:6},'Detail tambahan'));
+const children=[header,h('tbody',null,h(Fragment,null,record,detail))];
+assert.deepEqual(m.tableHeaderLabels(children),['Nama','NIK','Toko','Status','Kontrak','Aksi']);
+const html=renderToStaticMarkup(h(m.ResponsiveTable,{mobileSummary:['NIK','Toko','Status']},...children));
+assert.equal((html.match(/>Edit</g)||[]).length,1,'Mobile and desktop share a single interactive control');
+assert(html.includes('20260005'));assert(html.includes('data-record-extra="true" data-column-label="Kontrak"'));
+assert(html.includes('aria-expanded="false"'));assert(html.includes('data-record-full="true"'),'Colspan detail and empty rows remain intact');
+assert.equal((html.match(/Detail tambahan/g)||[]).length,1);
+const grouped=h('thead',null,h('tr',null,h('th',{rowSpan:2},'Nama'),h('th',{colSpan:2},'Waktu')),h('tr',null,h('th',null,'Masuk'),h('th',null,'Pulang')));
+assert.deepEqual(m.tableHeaderLabels([grouped]),['Nama','Waktu / Masuk','Waktu / Pulang'],'Grouped date/metric headers retain their context');
+assert.equal(m.employeeNik({id:'galuh'}),'20260005');assert.equal(m.employeeNik({id:'juhaeri'}),'20260012');
+assert.equal(m.employeeNik({id:'new-record'}),'','Do not invent login identities for newly added records');
+assert.equal(m.employeeNik({id:'galuh',nik:' 00981 '}),'00981','Preserve master NIK, including leading zeros');
+assert.equal(new Set(m.accounts.map(a=>a.nik)).size,m.accounts.length);
+for(const account of m.accounts)assert.equal(m.employeeNik({id:account.id}),account.nik,'Existing employee NIK must match its demo login');
+for(const [sign,label] of [['minus','Beban'],['plus','Pemasukan'],[undefined,'Subtotal']]){
+ const output=renderToStaticMarkup(h(m.PnLRow,{label:'Contoh pos',value:125000,sign,percent:12.5}));
+ const visibleAmount=output.match(/<td data-pnl-value="true"[^>]*>([\s\S]*?)<\/td>/)?.[0];
+ assert(visibleAmount?.includes(`data-column-label="${label}"`)&&visibleAmount.includes('125.000'),'Mobile financial values keep their correct debit/income/subtotal column');
+ assert(output.match(/data-pnl-percent="true"[^>]*>[\s\S]*?12.5%/),'Revenue percentage remains visible');
+}
+const editable=renderToStaticMarkup(h(m.PnLRow,{label:'Gaji',value:125000,sign:'minus',editable:true,onChange(){}}));
+assert(editable.match(/data-pnl-value="true"[\s\S]*?<input/),'Editable financial amount stays in the visible mobile field');
+const custom=renderToStaticMarkup(h(m.PnLCustomRow,{label:'Zakat',value:125000,percentValue:2.5,disabled:true}));
+assert(custom.match(/data-pnl-value="true"[\s\S]*?125.000/));
+const print=m.buildPrintableHtml('Laporan',[],[{key:'value',label:'Nilai'}],[{value:125000}]);
+assert(print.includes('<table>')&&!print.includes('<ResponsiveTable>'),'Print export must remain standalone HTML');
+console.log('PASS: shared controls, progressive details, grouped headers, financial amounts/editing, print HTML and consistent NIK.');

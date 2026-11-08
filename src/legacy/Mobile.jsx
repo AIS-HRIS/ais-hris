@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveTable from '../views/components/ResponsiveTable';
 
 import FormSurface, { Field } from "../views/components/FormSurface";
 import { CameraCapture } from "../views/attendance/AttendanceExperience";
@@ -3982,7 +3983,7 @@ function MasterJadwal({
       border: `1px solid ${T.line}`,
       borderRadius: 10
     }}>
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -4037,7 +4038,7 @@ function MasterJadwal({
                 </tr>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -4208,7 +4209,7 @@ function RekapBulanan({
       border: `1px solid ${T.line}`,
       borderRadius: 10
     }}>
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -4305,7 +4306,7 @@ function RekapBulanan({
                 </td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
       ...FI,
@@ -4609,7 +4610,7 @@ function CiprekSection({
         borderRadius: 12,
         overflow: "hidden"
       }}>
-            <table style={{
+            <ResponsiveTable style={{
           width: "100%",
           borderCollapse: "collapse",
           ...FI,
@@ -4652,7 +4653,7 @@ function CiprekSection({
                     </td>
                   </tr>)}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
           <div style={{
         ...FI,
@@ -6318,7 +6319,7 @@ function StokForm({
         borderRadius: 10,
         WebkitOverflowScrolling: "touch"
       }}>
-        <table style={{
+        <ResponsiveTable style={{
           borderCollapse: "collapse",
           ...FI,
           fontSize: 12,
@@ -6427,7 +6428,7 @@ function StokForm({
                 </tr>;
             })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
         ...FI,
@@ -6907,7 +6908,7 @@ function StageSummary({
         borderRadius: 10,
         WebkitOverflowScrolling: "touch"
       }}>
-            <table style={{
+            <ResponsiveTable style={{
           borderCollapse: "collapse",
           ...FI,
           fontSize: 12,
@@ -7050,7 +7051,7 @@ function StageSummary({
                     </tr>;
             })}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
           <div style={{
         ...FI,
@@ -7988,7 +7989,7 @@ function LaporanMonitoring({
       overflowX: "auto",
       marginBottom: 20
     }}>
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -8045,7 +8046,7 @@ function LaporanMonitoring({
                 </tr>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -10685,7 +10686,7 @@ function StokReviewElin({
           marginBottom: 12,
           WebkitOverflowScrolling: "touch"
         }}>
-              <table style={{
+              <ResponsiveTable style={{
             borderCollapse: "collapse",
             ...FI,
             fontSize: 12,
@@ -10780,7 +10781,7 @@ function StokReviewElin({
                       </tr>;
               })}
                 </tbody>
-              </table>
+              </ResponsiveTable>
             </div>
             <div style={{
           display: "flex",
@@ -11141,7 +11142,7 @@ function RolePermissionMatrix({
       <div style={{
       overflowX: "auto"
     }}>
-        <table style={{
+        <ResponsiveTable style={{
         borderCollapse: "collapse",
         ...FI,
         fontSize: 11,
@@ -11190,7 +11191,7 @@ function RolePermissionMatrix({
                   </td>)}
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
       display: "flex",

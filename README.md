@@ -124,6 +124,8 @@ Pemeriksaan: `npm run test:analytics` mencakup jalur tujuh level, migrasi data l
 
 ## GitHub Pages
 
+Pada layar di bawah 768 px, tabel menggunakan kartu vertikal dengan label per kolom dan tombol **Lihat rincian** untuk informasi tambahan. Tombol edit, pilihan baris, dan detail bertingkat memakai data serta handler yang sama dengan tabel desktop. Daftar karyawan menampilkan NIK yang konsisten dengan akun demo dan mendukung pencarian nama, NIK, atau jabatan. NIK tersimpan pada record dihormati; record baru tanpa NIK menampilkan **Belum ditetapkan**. `npm run test:records` memeriksa pemetaan kolom bertingkat, kontrol tunggal, detail, dan konsistensi NIK.
+
 Demo dapat dibuka melalui https://ais-hris.github.io/ais-hris/ setelah workflow **Deploy AIS People to GitHub Pages** selesai. Di Settings → Pages, pilih sumber **GitHub Actions**. Setiap push ke `main` menjalankan pengujian, membangun frontend, dan menerbitkan `dist-pages`. Build server/Worker yang sudah ada tetap tersedia melalui `npm run build`.
 
 ```sh

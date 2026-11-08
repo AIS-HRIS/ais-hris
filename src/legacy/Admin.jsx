@@ -1,6 +1,8 @@
 "use client";
+import ResponsiveTable from '../views/components/ResponsiveTable';
 
 import FormSurface, { Field } from "../views/components/FormSurface";
+import { employeeNik } from "../models/employeeIdentity";
 import { canDecideLeave } from "../models/requestRules";
 import { useState, useEffect, useMemo, Fragment, Component } from "react";
 import { Users, Store, Package, CalendarDays, BarChart3, ClipboardCheck, ShieldCheck, Plus, Pencil, Trash2, X, Check, ChevronDown, ChevronRight, Search, MapPin, LayoutDashboard, FileBarChart2, CalendarClock, Boxes, Eye, Bell, Navigation, ArrowLeftRight, SlidersHorizontal, PenLine, RefreshCcw, Lock, AlertTriangle, Receipt, Download } from "lucide-react";
@@ -3153,7 +3155,7 @@ function DireksiOverviewSection({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -3214,7 +3216,7 @@ function DireksiOverviewSection({
             }}>{totalPct(totalPembelian)}%</td>
             </tr>
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
       ...FI,
@@ -3303,7 +3305,7 @@ function OperasionalHarianSection({
       overflow: "auto",
       marginBottom: 20
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -3374,7 +3376,7 @@ function OperasionalHarianSection({
             }}>{totalBulan ? Math.round(rows.reduce((a, r) => a + r.cogs, 0) / totalBulan * 100) : 0}%</td>
             </tr>
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
 
       <div style={{
@@ -3391,7 +3393,7 @@ function OperasionalHarianSection({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -3446,7 +3448,7 @@ function OperasionalHarianSection({
                 </tr>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -3786,7 +3788,7 @@ function MasterTaskPage({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -3860,7 +3862,7 @@ function MasterTaskPage({
                 </td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -3905,7 +3907,7 @@ function RekapDailyTaskPerTask({
     borderRadius: 14,
     overflow: "auto"
   }} className="ais-content-panel">
-      <table style={{
+      <ResponsiveTable style={{
       width: "100%",
       borderCollapse: "collapse",
       ...FI,
@@ -3967,7 +3969,7 @@ function RekapDailyTaskPerTask({
               </tr>;
         })}
         </tbody>
-      </table>
+      </ResponsiveTable>
     </div>;
 }
 
@@ -4459,7 +4461,7 @@ function PenguncianPerangkatPanel({
       overflowX: "auto",
       maxHeight: 300
     }}>
-        <table style={{
+        <ResponsiveTable style={{
         borderCollapse: "collapse",
         ...FI,
         fontSize: 12.5,
@@ -4551,7 +4553,7 @@ function PenguncianPerangkatPanel({
                 </tr>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       {bisaReset && <div style={{
       ...FI,
@@ -4578,7 +4580,7 @@ function MasterKaryawanPage({
   const [search, setSearch] = useState("");
   const [filterGroup, setFilterGroup] = useState("all");
   const today = new Date();
-  const filtered = employees.filter(e => (filterGroup === "all" || e.group === filterGroup) && (e.name.toLowerCase().includes(search.toLowerCase()) || (e.jabatan || "").toLowerCase().includes(search.toLowerCase())));
+  const filtered = employees.filter(e => (filterGroup === "all" || e.group === filterGroup) && ([e.name,e.jabatan,employeeNik(e)].some(value=>String(value||" ").toLowerCase().includes(search.trim().toLowerCase()))));
   const save = form => {
     if (editingId) {
       setEmployees(employees.map(e => e.id === editingId ? {
@@ -4669,7 +4671,7 @@ function MasterKaryawanPage({
       display: "flex",
       gap: 10,
       marginBottom: 14
-    }} className="ais-flex-layout">
+    }} className="ais-flex-layout employee-directory-filters">
         <div style={{
         flex: 1,
         position: "relative"
@@ -4679,7 +4681,7 @@ function MasterKaryawanPage({
           left: 10,
           top: 11
         }} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari nama atau jabatan…" style={{
+          <input value={search} onChange={e => setSearch(e.target.value)} aria-label="Cari nama, NIK, atau jabatan" placeholder="Cari nama, NIK, atau jabatan…" style={{
           width: "100%",
           border: `1px solid ${T.line}`,
           borderRadius: 9,
@@ -4712,16 +4714,16 @@ function MasterKaryawanPage({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
         fontSize: 13,
         minWidth: 1280
-      }}>
+      }} className="employee-records" mobileSummary={["NIK","Toko","Status"]}>
           <thead>
             <tr style={THBG}>
-              {["Nama", "Jabatan", "Grup", "Toko", "Join Date", "Status Kontrak", "Masa Kerja", "Habis Kontrak", "Status Sanksi", "Sisa Cuti", "Status", ""].map(h => <th key={h} style={{
+              {["Nama", "NIK", "Jabatan", "Grup", "Toko", "Join Date", "Status Kontrak", "Masa Kerja", "Habis Kontrak", "Status Sanksi", "Sisa Cuti", "Status", ""].map(h => <th key={h} style={{
               ...TDW,
               fontSize: 11.5,
               color: T.inkMuted,
@@ -4741,7 +4743,8 @@ function MasterKaryawanPage({
                 ...TDW,
                 fontWeight: 600,
                 whiteSpace: "nowrap"
-              }}>{e.name}</td>
+              }}><div className="employee-record-identity"><span className="employee-record-avatar">{e.name.split(" ").map(n=>n[0]).slice(0,2).join("")}</span><div><strong>{e.name}</strong><small>{e.jabatan||"Posisi belum ditetapkan"}</small></div></div></td>
+                  <td style={{...TDW,...FM}}><span className="employee-record-nik">{employeeNik(e)||"Belum ditetapkan"}</span></td>
                   <td style={{
                 ...TDW,
                 color: T.inkMuted,
@@ -4840,7 +4843,7 @@ function MasterKaryawanPage({
                 </tr>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -5204,7 +5207,7 @@ function CrudTable({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -5270,7 +5273,7 @@ function CrudTable({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -5608,7 +5611,7 @@ function MasterTokoPage({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -5678,7 +5681,7 @@ function MasterTokoPage({
                 </td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -5903,7 +5906,7 @@ function MasterProdukPage({
       }}>Belum ada resep / BOM untuk produk ini.</div> : <div style={{
         overflowX: "auto"
       }}>
-                <table style={{
+                <ResponsiveTable style={{
           borderCollapse: "collapse",
           ...FI,
           fontSize: 12,
@@ -5958,7 +5961,7 @@ function MasterProdukPage({
               }}>{rupiah(x.biaya)}</td>
                       </tr>)}
                   </tbody>
-                </table>
+                </ResponsiveTable>
               </div>}
           </div>;
   }} />;
@@ -6880,7 +6883,7 @@ function MasterCiprekTab({
         <div style={{
           overflowX: "auto"
         }}>
-          <table style={{
+          <ResponsiveTable style={{
             borderCollapse: "collapse",
             ...FI,
             fontSize: 12,
@@ -6955,7 +6958,7 @@ function MasterCiprekTab({
                 }}>{r.susut != null ? `${Math.round(r.susut * 100)}%` : "-"}</td>
                 </tr>)}
             </tbody>
-          </table>
+          </ResponsiveTable>
         </div>
 
         {!editing && !hasil.melebihiBatch && hasil.targetCup > 0 && <div style={{
@@ -7259,7 +7262,7 @@ Resep/BOM dipakai untuk validasi pemakaian bahan baku terhadap penjualan (deteks
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -7373,7 +7376,7 @@ Resep/BOM dipakai untuk validasi pemakaian bahan baku terhadap penjualan (deteks
                   }}>Belum ada resep untuk produk ini.</div> : <div style={{
                     overflowX: "auto"
                   }}>
-                          <table style={{
+                          <ResponsiveTable style={{
                       borderCollapse: "collapse",
                       ...FI,
                       fontSize: 12,
@@ -7432,14 +7435,14 @@ Resep/BOM dipakai untuk validasi pemakaian bahan baku terhadap penjualan (deteks
                                   </tr>;
                         })}
                             </tbody>
-                          </table>
+                          </ResponsiveTable>
                         </div>}
                     </td>
                   </tr>}
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -7516,7 +7519,7 @@ function ScheduleGrid({
       maxHeight: 420,
       marginTop: subtitle ? 0 : 8
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         borderCollapse: "collapse",
         ...FI,
         fontSize: 11
@@ -7602,7 +7605,7 @@ function ScheduleGrid({
                 </tr>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -8673,7 +8676,7 @@ function RekapBulananPage({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -8773,7 +8776,7 @@ function RekapBulananPage({
                     overflowX: "auto",
                     maxHeight: 320
                   }}>
-                        <table style={{
+                        <ResponsiveTable style={{
                       borderCollapse: "collapse",
                       ...FI,
                       fontSize: 12,
@@ -8836,14 +8839,14 @@ function RekapBulananPage({
                                 </tr>;
                         })}
                           </tbody>
-                        </table>
+                        </ResponsiveTable>
                       </div>}
                   </td>
                 </tr>}
               </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -9027,7 +9030,7 @@ function SalesOnlineForm({
         textTransform: "uppercase",
         marginBottom: 6
       }}>Penjualan Offline</div>
-      <table style={{
+      <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -9074,7 +9077,7 @@ function SalesOnlineForm({
               fontWeight: 700
             }}>{rupiah(bd.offline.nett)}</td></tr>
         </tbody>
-      </table>
+      </ResponsiveTable>
 
       <div style={{
         ...FI,
@@ -9087,7 +9090,7 @@ function SalesOnlineForm({
       <div style={{
         overflowX: "auto"
       }}>
-        <table style={{
+        <ResponsiveTable style={{
           borderCollapse: "collapse",
           ...FI,
           fontSize: 12,
@@ -9170,7 +9173,7 @@ function SalesOnlineForm({
               }}>{rupiah(p.nett)}</td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
 
       <div style={{
@@ -9587,7 +9590,7 @@ function SalesDetailPanel({
             textTransform: "uppercase",
             marginBottom: 3
           }}>Produk Terjual</div>
-              <table style={{
+              <ResponsiveTable style={{
             width: "100%",
             borderCollapse: "collapse",
             ...FI,
@@ -9613,7 +9616,7 @@ function SalesDetailPanel({
                   padding: "2px 0"
                 }}>{rupiah(s.qty[p.id] * p.price)}</td></tr> : null)}
                 </tbody>
-              </table>
+              </ResponsiveTable>
               <div style={{
             ...FI,
             fontSize: 12,
@@ -9634,7 +9637,7 @@ function SalesDetailPanel({
             overflowX: "auto",
             marginBottom: 6
           }}>
-                <table style={{
+                <ResponsiveTable style={{
               borderCollapse: "collapse",
               ...FI,
               fontSize: 11.5,
@@ -9673,7 +9676,7 @@ function SalesDetailPanel({
                   }}>{rupiah(r.nett)}</td>
                       </tr>)}
                   </tbody>
-                </table>
+                </ResponsiveTable>
               </div>
               <div style={{
             ...FI,
@@ -9805,7 +9808,7 @@ function SalesDetailPanel({
           <div style={{
         overflowX: "auto"
       }}>
-            <table style={{
+            <ResponsiveTable style={{
           borderCollapse: "collapse",
           ...FI,
           fontSize: 12,
@@ -9873,7 +9876,7 @@ function SalesDetailPanel({
               }}>{rupiah(p.nett)}</td>
                   </tr>)}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
         </div>}
     </div>;
@@ -10007,7 +10010,7 @@ function RekapBebanTokoPage({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -10047,7 +10050,7 @@ function RekapBebanTokoPage({
             }}>{r.olehNama}</td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -10426,7 +10429,7 @@ function RekapPengeluaranPage({
       overflow: "hidden",
       marginBottom: 20
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -10455,7 +10458,7 @@ function RekapPengeluaranPage({
             }}>{rupiah(v)}</td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
 
       <div style={{
@@ -10478,7 +10481,7 @@ function RekapPengeluaranPage({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -10552,7 +10555,7 @@ function RekapPengeluaranPage({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -10667,7 +10670,7 @@ function RekapSalesPage({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -10722,7 +10725,7 @@ function RekapSalesPage({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -10831,7 +10834,7 @@ function RekapProduksiTab({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -10927,7 +10930,7 @@ function RekapProduksiTab({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -11046,7 +11049,7 @@ function RekapEtalaseTab({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -11147,7 +11150,7 @@ function RekapEtalaseTab({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
       ...FI,
@@ -11253,7 +11256,7 @@ function RekapMinyakTab({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -11385,7 +11388,7 @@ function RekapMinyakTab({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -12196,7 +12199,7 @@ function WasteMatrixTab({
       overflow: "auto",
       maxHeight: 560
     }} className="ais-content-panel">
-          <table style={{
+          <ResponsiveTable style={{
         borderCollapse: "collapse",
         ...FI,
         fontSize: 11.5
@@ -12294,7 +12297,7 @@ function WasteMatrixTab({
             }}>{wasteFmtQty(tot(x))}</td>
                 </tr>)}
             </tbody>
-          </table>
+          </ResponsiveTable>
         </div>}
       {markBanding && days.length > 0 && <WasteBandingLog calc={calc} />}
     </div>;
@@ -12360,7 +12363,7 @@ function WasteBandingLog({
       borderRadius: 12,
       overflow: "auto"
     }} className="ais-content-panel">
-          <table style={{
+          <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -12406,7 +12409,7 @@ function WasteBandingLog({
             }}>{b.diputuskanOleh ? `${b.diputuskanOleh} · ${new Date(b.diputuskanAt).toLocaleString("id-ID")}` : "—"}</td>
                 </tr>)}
             </tbody>
-          </table>
+          </ResponsiveTable>
         </div>}
     </div>;
 }
@@ -12469,7 +12472,7 @@ function WasteTheoLinesTab({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-          <table style={{
+          <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -12543,7 +12546,7 @@ function WasteTheoLinesTab({
             }}>{tot(d => d.lines.sisa[c.id])}</td>)}
               </tr>
             </tbody>
-          </table>
+          </ResponsiveTable>
         </div>}
     </div>;
 }
@@ -12593,7 +12596,7 @@ function WastePriceTab({
       overflow: "hidden",
       marginBottom: 22
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -12630,7 +12633,7 @@ function WastePriceTab({
             }}>{wastePct(r.totals.pctOmset)}</td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
       marginBottom: 12
@@ -12665,7 +12668,7 @@ function WastePriceTab({
       overflow: "auto",
       maxHeight: 520
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -12726,7 +12729,7 @@ function WastePriceTab({
               padding: 24
             }}>Belum ada data selisih pada periode ini.</td></tr>}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -13245,7 +13248,7 @@ function RekapKerjaHarianPage({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -13364,7 +13367,7 @@ function RekapKerjaHarianPage({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>}
     </div>;
 }
@@ -13492,7 +13495,7 @@ function RekapSambelCiprekTab({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -13632,7 +13635,7 @@ function RekapSambelCiprekTab({
                           textTransform: "uppercase",
                           marginBottom: 3
                         }}>Teoritis vs Aktual</div>
-                                <table style={{
+                                <ResponsiveTable style={{
                           width: "100%",
                           borderCollapse: "collapse",
                           ...FI,
@@ -13654,7 +13657,7 @@ function RekapSambelCiprekTab({
                                     <Baris label="Sambal jadi" teori={t.totalSambalJadi} aktual={s.totalJadi} selisih={selisihGr} unit=" gr" />
                                     <Baris label="Jumlah cup" teori={s.targetCup} aktual={s.jumlahCup} selisih={selisihCup} unit=" cup" />
                                   </tbody>
-                                </table>
+                                </ResponsiveTable>
 
                                 <div style={{
                           ...FI,
@@ -13715,7 +13718,7 @@ function RekapSambelCiprekTab({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -13838,7 +13841,7 @@ function PnLRow({
   const cellPad = bold ? "6px 8px" : "3px 8px";
   return <tr style={{
     background: highlight ? T.accentSoft : "transparent"
-  }}>
+  }} className="pnl-record-line">
       <td style={{
       padding: cellPad,
       paddingLeft: indent,
@@ -13848,7 +13851,7 @@ function PnLRow({
       fontSize: bold ? 12.5 : 12,
       color: highlight ? T.accentDeep : T.ink
     }}>{label}</td>
-      <td style={{
+      <td data-pnl-value={sign === "minus" ? "true" : undefined} data-column-label="Beban" style={{
       padding: cellPad,
       borderTop,
       textAlign: "right"
@@ -13859,7 +13862,7 @@ function PnLRow({
         color: T.bad
       }}>{value ? `(${rupiah(value)})` : "-"}</span>)}
       </td>
-      <td style={{
+      <td data-pnl-value={sign === "plus" ? "true" : undefined} data-column-label="Pemasukan" style={{
       padding: cellPad,
       borderTop,
       textAlign: "right"
@@ -13870,7 +13873,7 @@ function PnLRow({
         color: T.good
       }}>{rupiah(value)}</span>)}
       </td>
-      <td style={{
+      <td data-pnl-value={!sign ? "true" : undefined} data-column-label="Subtotal" style={{
       padding: cellPad,
       borderTop,
       textAlign: "right"
@@ -13882,7 +13885,7 @@ function PnLRow({
         color: highlight ? value < 0 ? T.bad : T.good : T.ink
       }}>{rupiah(value)}</span>}
       </td>
-      <td style={{
+      <td data-pnl-percent={percent != null ? "true" : undefined} data-column-label="Dari omset" style={{
       padding: cellPad,
       borderTop,
       textAlign: "right"
@@ -13921,7 +13924,7 @@ function PnLSectionLabel({
   children,
   top
 }) {
-  return <tr>
+  return <tr className="pnl-record-heading">
       <td colSpan={5} style={{
       paddingTop: top ?? 16,
       paddingBottom: 6
@@ -13939,7 +13942,7 @@ function PnLSectionLabel({
 function PnLSubLabel({
   children
 }) {
-  return <tr>
+  return <tr className="pnl-record-heading is-subheading">
       <td colSpan={5} style={{
       paddingTop: 8,
       paddingBottom: 2
@@ -13961,7 +13964,7 @@ function PnLCustomRow({
   disabled,
   value
 }) {
-  return <tr>
+  return <tr className="pnl-record-line">
       <td style={{
       padding: "3px 8px 3px 0",
       ...FI,
@@ -13984,7 +13987,7 @@ function PnLCustomRow({
         }} className="ais-control" />%
         </span>
       </td>
-      <td style={{
+      <td data-pnl-value="true" data-column-label="Nilai" style={{
       padding: "3px 8px",
       textAlign: "right"
     }}>
@@ -14299,7 +14302,7 @@ function PembelianInputPanel({
           overflowX: "auto",
           marginBottom: 10
         }}>
-            <table style={{
+            <ResponsiveTable style={{
             borderCollapse: "collapse",
             ...FI,
             fontSize: 12.5,
@@ -14377,7 +14380,7 @@ function PembelianInputPanel({
                     </td>
                   </tr>)}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
           <button onClick={() => setItems([...items, {
           bahanId: bahan[0]?.id,
@@ -14565,7 +14568,7 @@ function RekapPembelianPage({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -14621,7 +14624,7 @@ function RekapPembelianPage({
                   padding: "14px 16px",
                   borderTop: `1px dashed ${T.line}`
                 }}>
-                        <table style={{
+                        <ResponsiveTable style={{
                     width: "100%",
                     borderCollapse: "collapse",
                     ...FI,
@@ -14662,7 +14665,7 @@ function RekapPembelianPage({
                         }}>{rupiah(it.subtotal)}</td>
                               </tr>)}
                           </tbody>
-                        </table>
+                        </ResponsiveTable>
 
                         <div style={{
                     background: T.surface,
@@ -14743,7 +14746,7 @@ function RekapPembelianPage({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -14980,7 +14983,7 @@ function OpnameInputPanel({
           border: `1px solid ${T.line}`,
           borderRadius: 10
         }}>
-            <table style={{
+            <ResponsiveTable style={{
             borderCollapse: "collapse",
             ...FI,
             fontSize: 12.5,
@@ -15063,7 +15066,7 @@ function OpnameInputPanel({
                     </tr>;
               })}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
           <button onClick={submit} disabled={filled.length === 0} style={{
           border: "none",
@@ -15534,7 +15537,7 @@ function RekapOpnamePage({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -15585,7 +15588,7 @@ function RekapOpnamePage({
                   padding: "14px 16px",
                   borderTop: `1px dashed ${T.line}`
                 }}>
-                        <table style={{
+                        <ResponsiveTable style={{
                     width: "100%",
                     borderCollapse: "collapse",
                     ...FI,
@@ -15628,7 +15631,7 @@ function RekapOpnamePage({
                         }}>{it.keterangan || "-"}</td>
                               </tr>)}
                           </tbody>
-                        </table>
+                        </ResponsiveTable>
                         {o.editedBy && <div style={{
                     ...FI,
                     fontSize: 11,
@@ -15641,7 +15644,7 @@ function RekapOpnamePage({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -15833,7 +15836,7 @@ function RekapTransferStokPage({
       borderRadius: 14,
       overflow: "hidden"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -15895,7 +15898,7 @@ function RekapTransferStokPage({
                   padding: "14px 16px",
                   borderTop: `1px dashed ${T.line}`
                 }}>
-                        <table style={{
+                        <ResponsiveTable style={{
                     width: "100%",
                     borderCollapse: "collapse",
                     ...FI,
@@ -15927,7 +15930,7 @@ function RekapTransferStokPage({
                                 </td>
                               </tr>)}
                           </tbody>
-                        </table>
+                        </ResponsiveTable>
                         <div style={{
                     ...FI,
                     fontSize: 11.5,
@@ -15941,7 +15944,7 @@ function RekapTransferStokPage({
                 </Fragment>;
           })}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -17135,7 +17138,7 @@ function PnLPage({
         }}>PERIODE {monthName} {year}</div>
         </div>
 
-        <table style={{
+        <ResponsiveTable className="pnl-records" style={{
         width: "100%",
         borderCollapse: "collapse"
       }}>
@@ -17150,14 +17153,14 @@ function PnLPage({
 
             <PnLRow label="Persediaan Awal" value={persediaanAwalValue} percent={pct(persediaanAwalValue)} sign="plus" />
             <PnLRow label="Pembelian (auto)" value={pembelianTotal} percent={pct(pembelianTotal)} sign="plus" />
-            <div style={{
+            <tr className="pnl-record-heading is-note"><td colSpan={5}><div style={{
             ...FI,
             fontSize: 10.5,
             color: T.inkMuted,
             padding: "0 0 6px 14px"
           }}>
               Pembelian {rupiah(pembelianRaw)} + Transfer In {rupiah(nilaiTransferIn)} − Transfer Out {rupiah(nilaiTransferOut)}
-            </div>
+            </div></td></tr>
             <PnLRow label="Biaya Ongkos Kirim" value={data.ongkosKirim} editable={fieldsEditable} onChange={v => setField("ongkosKirim", v)} percent={pct(data.ongkosKirim)} sign="plus" />
             <PnLRow label="Persediaan Akhir" value={persediaanAkhirValue} percent={pct(persediaanAkhirValue)} sign="minus" />
             <PnLRow label="COGS / HPP" value={cogs} bold percent={pct(cogs)} sectionEnd />
@@ -17199,7 +17202,7 @@ function PnLPage({
             <PnLCustomRow label="Pengelola" percentValue={data.pengelolaPercent} onPercentChange={v => setField("pengelolaPercent", v)} disabled={!fieldsEditable} value={pengelola} />
             <PnLRow label={`Holding ${100 - data.pengelolaPercent}%`} value={holding} bold sectionEnd />
           </tbody>
-        </table>
+        </ResponsiveTable>
 
         {isEri && (statusData.status === "draft" || statusData.status === "unlocked") && <button onClick={submitLock} style={{
         width: "100%",
@@ -17312,7 +17315,7 @@ function RekapBulananIjinPanel({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -17353,7 +17356,7 @@ function RekapBulananIjinPanel({
             }}>{r.totalHari}</td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -17918,7 +17921,7 @@ function ApprovalStokTab({
               </div>}
 
             {!editing ? <div>
-                <table style={{
+                <ResponsiveTable style={{
             width: "100%",
             borderCollapse: "collapse",
             ...FI,
@@ -17962,7 +17965,7 @@ function ApprovalStokTab({
                 }}>{data[bid]?.akhir}</td>
                       </tr>)}
                   </tbody>
-                </table>
+                </ResponsiveTable>
                 {data.editedBy && <div style={{
             ...FI,
             fontSize: 11.5,
@@ -18010,7 +18013,7 @@ function ApprovalStokTab({
                       </>}
                   </div>}
               </div> : <div>
-                <table style={{
+                <ResponsiveTable style={{
             width: "100%",
             borderCollapse: "collapse",
             ...FI,
@@ -18064,7 +18067,7 @@ function ApprovalStokTab({
                         </tr>;
               })}
                   </tbody>
-                </table>
+                </ResponsiveTable>
                 <div style={{
             display: "flex",
             gap: 8
@@ -18528,7 +18531,7 @@ function RingkasanStokPage({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         width: "100%",
         borderCollapse: "collapse",
         ...FI,
@@ -18590,7 +18593,7 @@ function RingkasanStokPage({
             }}>{r.stokAkhir} {r.bahan.unitKecil}</td>
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
     </div>;
 }
@@ -18674,7 +18677,7 @@ function RekapVariabelPage({
       borderRadius: 14,
       overflow: "auto"
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         borderCollapse: "collapse",
         ...FI,
         fontSize: 11.5,
@@ -18743,7 +18746,7 @@ function RekapVariabelPage({
             })}
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
       ...FI,
@@ -19566,7 +19569,7 @@ function RoqPage({
           maxHeight: 560,
           marginBottom: 12
         }}>
-              <table style={{
+              <ResponsiveTable style={{
             width: "100%",
             borderCollapse: "collapse",
             ...FI,
@@ -19678,7 +19681,7 @@ function RoqPage({
                 }}>{i.r.peringatan.join(" · ")}</td>
                     </tr>)}
                 </tbody>
-              </table>
+              </ResponsiveTable>
             </div>
           </>}
       </RoqLangkah>
@@ -19787,7 +19790,7 @@ function LaporanRoqPage({
         borderRadius: 14,
         overflow: "auto"
       }} className="ais-content-panel">
-            <table style={{
+            <ResponsiveTable style={{
           width: "100%",
           borderCollapse: "collapse",
           ...FI,
@@ -19841,7 +19844,7 @@ function LaporanRoqPage({
                     padding: "12px 16px",
                     borderTop: `1px dashed ${T.line}`
                   }}>
-                          <table style={{
+                          <ResponsiveTable style={{
                       borderCollapse: "collapse",
                       ...FI,
                       fontSize: 12
@@ -19868,7 +19871,7 @@ function LaporanRoqPage({
                             padding: "2px 0",
                             fontWeight: 700
                           }}>{i.qtyFinal} {i.satuan}</td></tr>)}</tbody>
-                          </table>
+                          </ResponsiveTable>
                           <button onClick={async e => {
                       e.stopPropagation();
                       setPesan((await salinTeks(roqTeksWhatsapp(nama(o.storeId), {
@@ -19891,7 +19894,7 @@ function LaporanRoqPage({
                     </Fragment>;
             })}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
         </div>}
       {tab === "snapshot" && <div>
@@ -19912,7 +19915,7 @@ function LaporanRoqPage({
         borderRadius: 14,
         overflow: "auto"
       }} className="ais-content-panel">
-            <table style={{
+            <ResponsiveTable style={{
           width: "100%",
           borderCollapse: "collapse",
           ...FI,
@@ -19982,7 +19985,7 @@ function LaporanRoqPage({
                     </Fragment>;
             })}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
         </div>}
     </div>;
@@ -20050,7 +20053,7 @@ function RolePermissionPage({
       overflow: "auto",
       padding: 6
     }} className="ais-content-panel">
-        <table style={{
+        <ResponsiveTable style={{
         borderCollapse: "collapse",
         ...FI,
         fontSize: 12,
@@ -20093,7 +20096,7 @@ function RolePermissionPage({
                   </td>)}
               </tr>)}
           </tbody>
-        </table>
+        </ResponsiveTable>
       </div>
       <div style={{
       display: "flex",

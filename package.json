@@ -17,7 +17,8 @@
     "build:pages": "vite build --config vite.pages.config.mjs",
     "preview:pages": "vite preview --config vite.pages.config.mjs --port 4173",
     "test:pages": "node scripts/test-pages.mjs",
-    "test:attendance": "node scripts/test-attendance-preflight.mjs"
+    "test:attendance": "node scripts/test-attendance-preflight.mjs",
+    "test:records": "node scripts/test-responsive-records.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

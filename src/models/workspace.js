@@ -1,9 +1,10 @@
 import { EMPLOYEES, STORES, allowedModuleMenu } from './referenceData';
+import {employeeNik} from './employeeIdentity';
 import {organizationAccess} from './organization';
 import { DASHBOARD_USERS, ACCESS_MAP, NAV_GROUPS, SEED_EMPLOYEES, seedAttendanceAndSchedule, seedIjinKerja, seedApprovalQueue } from './referenceData';
 
 // NIK contoh hanya untuk evaluasi desain. Ganti dengan NIK master melalui API produksi.
-export const accounts = EMPLOYEES.map((e, i) => ({ ...e, nik: `2026${String(i + 1).padStart(4, '0')}`, role: e.group === 'direksi' ? 'Direksi' : e.jabatan, admin: DASHBOARD_USERS.find(u => u.id === e.id) }));
+export const accounts = EMPLOYEES.map(e => ({ ...e, nik: employeeNik(e), role: e.group === 'direksi' ? 'Direksi' : e.jabatan, admin: DASHBOARD_USERS.find(u => u.id === e.id) }));
 export const demoPassword = 'Ais2026!';
 export const demoAccounts = ['juhaeri', 'eri', 'nana', 'elin', 'jafar_sodik', 'hilman', 'galuh', 'hadi', 'rizky', 'toko_dtop_baros'].map(id => accounts.find(a => a.id === id)).filter(Boolean);
 export const stores = STORES;
