@@ -1,0 +1,35 @@
+'use client';
+import {useState} from 'react';
+import {Activity,ArrowRight,ArrowUpRight,Building2,CalendarDays,ChartNoAxesCombined,ClipboardCheck,Clock3,FileStack,Fingerprint,HelpCircle,LayoutDashboard,LogOut,Search,ShieldCheck,Store,UserRound,Users,Wallet,ScanFace,ChevronRight,Sun} from 'lucide-react';
+import {useBaseline} from '../viewmodels/useBaseline';
+import {read,dateKey} from '../models/workspace';
+const icons={organization:Building2,users:Users,calendar:CalendarDays,chart:ChartNoAxesCombined,store:Store,user:UserRound,clock:Clock3,activity:Activity,help:HelpCircle,dashboard:LayoutDashboard};
+export function menuIcon(item){if(item.id.includes('absensi')&&!item.id.includes('rekap')&&!item.id.includes('ijin')&&!item.id.includes('jadwal'))return Fingerprint;if(item.id.includes('approval')||item.id==='requests')return ClipboardCheck;if(item.id.includes('pembelian')||item.id.includes('pengeluaran')||item.id.includes('pnl'))return Wallet;if(item.id.includes('role'))return ShieldCheck;return icons[item.icon]||FileStack;}
+export function menuTone(item){if(item.id.includes('absensi')&&!item.id.includes('ijin'))return 'peach';if(item.icon==='users'||item.icon==='user')return 'blue';if(item.id.includes('ijin')||item.id==='requests')return 'violet';if(item.icon==='store')return 'mint';if(item.icon==='chart')return 'blue';return 'gold';}
+const groupName=label=>({'WORKSPACE':'Workspace','PERSONAL':'Untuk Anda','PEOPLE & CULTURE':'People & culture','LAINNYA':'Bantuan & aktivitas','KOORDINASI TIM':'Koordinasi tim'}[label]||label.charAt(0)+label.slice(1).toLowerCase());
+export default function MobileHome({vm}){
+ const [category,setCategory]=useState('all'),[query,setQuery]=useState('');
+ const {baseline,loading}=useBaseline(vm.account.id);
+ const orderedGroups=[...vm.groups].sort((a,b)=>(a.label==='PERSONAL'?-1:b.label==='PERSONAL'?1:0));
+ const groups=orderedGroups.map(g=>({...g,items:g.items.filter(i=>i.id!=='home'&&i.label.toLowerCase().includes(query.toLowerCase()))})).filter(g=>g.items.length&&(category==='all'||category===g.label));
+ const date=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short',timeZone:'Asia/Jakarta'});
+ const requestTarget=vm.items.find(i=>i.id==='admin:absensi_ijin')?.id||vm.items.find(i=>i.id==='requests')?.id||vm.items.find(i=>i.id==='mobile:ijin')?.id;
+ const personal=vm.items.some(i=>i.id==='mobile:absensi');
+ const activity=read('ais-attendance-log',[]).filter(r=>r.empId===vm.account.id&&r.date===dateKey());
+ const lastIn=activity.filter(r=>['in','clock_in'].includes(r.type)).at(-1),lastOut=activity.filter(r=>['out','clock_out'].includes(r.type)).at(-1);
+ const time=r=>r?.timestamp?new Date(r.timestamp).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Jakarta'}):'—';
+ const target=personal?'mobile:absensi':vm.items.some(i=>i.id==='mobile:laporan')?'mobile:laporan':'mobile:profile';
+ const categories=vm.groups.filter(g=>g.items.some(i=>i.id!=='home'));
+ return <div className="people-home">
+  <section className="people-greeting"><div><p><Sun size={15}/>{date}</p><h1>Halo, {vm.account.name.split(' ')[0]} <span className="greeting-spark">✦</span></h1><span>Semoga harimu menyenangkan.</span></div><span className="personal-role"><ShieldCheck size={13}/>{vm.account.role}</span></section>
+  <section className="today-card motion-card"><div className="today-card-top"><span><span className="online-bead"/>{personal?'Attendance hari ini':'Operasional hari ini'}</span><span>AIS PEOPLE</span></div><div className="today-card-main"><div><h2>{personal?(baseline?'Siap memulai hari?':'Satu foto. Siap bekerja.'):'Toko siap, tim pun siap.'}</h2><p>{personal?(loading?'Memeriksa foto baseline…':baseline?'Selfie, cek lokasi, lalu catat kehadiran.':'Daftarkan foto baseline untuk absensi pertama Anda.'):'Laporan dan kebutuhan operasional dalam satu tempat.'}</p></div><div className="today-fingerprint">{personal?<Fingerprint size={56} strokeWidth={1.5}/>:<Store size={48}/>}</div></div>
+   {personal&&<div className="today-punches"><div><span><ArrowUpRight size={15}/>Masuk</span><strong>{time(lastIn)}</strong></div><i/><div><span><ArrowUpRight size={15}/>Pulang</span><strong>{time(lastOut)}</strong></div><span className="today-baseline"><ScanFace size={16}/>{baseline?'Foto siap':'Perlu foto'}</span></div>}
+   <button className="today-action" onClick={()=>vm.go(target)}><span>{personal?(baseline?'Buka attendance':'Daftarkan foto baseline'):(target==='mobile:laporan'?'Buka laporan toko':'Buka profil toko')}</span><ArrowRight size={19}/></button>
+  </section>
+  <section className="service-directory"><div className="directory-title"><div><h2>Ruang kerja Anda</h2></div><span>{vm.items.length-1} layanan</span></div><label className="service-search"><Search size={19}/><input aria-label="Cari semua menu" placeholder="Mau mengerjakan apa hari ini?" value={query} onChange={e=>setQuery(e.target.value)}/></label><div className="service-categories" aria-label="Kategori menu"><button aria-pressed={category==='all'} onClick={()=>setCategory('all')}>Semua</button>{categories.map(g=><button key={g.label} aria-pressed={category===g.label} onClick={()=>setCategory(g.label)}>{groupName(g.label)}</button>)}</div>
+   <div key={category+query} className="service-groups">{groups.map(g=><section className="service-group" key={g.label}><div className="service-group-title"><h3>{groupName(g.label)}</h3><span>{g.items.length} layanan</span></div><div className="service-grid">{g.items.map((item,index)=>{const Icon=menuIcon(item);return <button key={item.id} style={{'--stagger':`${Math.min(index,7)*40}ms`}} onClick={()=>vm.go(item.id)}><span className={`service-icon ${menuTone(item)}`}><Icon size={25} strokeWidth={1.8}/></span><strong>{item.label}</strong></button>;})}</div></section>)}</div>
+   {!groups.length&&<div className="empty-state"><Search size={28}/><strong>Menu belum ditemukan</strong><span>Coba kata kunci yang berbeda.</span></div>}
+  </section>  <div className="personal-highlights"><button disabled={!requestTarget} onClick={()=>vm.go(requestTarget)}><span className="service-icon violet"><CalendarDays size={19}/></span><span><strong>{vm.data.pending.length} pengajuan</strong><small>Menunggu persetujuan</small></span><ChevronRight size={15}/></button><button onClick={()=>vm.go(vm.account.admin?'insights':'mobile:profile')}><span className="service-icon blue">{vm.account.admin?<Users size={19}/>:<Building2 size={19}/>}</span><span><strong>{vm.account.admin?vm.data.team.length:vm.data.stores.length} {vm.account.admin?'karyawan':'lokasi'}</strong><small>Dalam cakupan Anda</small></span></button></div>
+<div className="home-install"><span className="service-icon peach"><LayoutDashboard size={22}/></span><div><strong>Lebih dekat, setiap hari.</strong><p>Tambahkan AIS People ke layar utama Anda.</p><button onClick={vm.install}>Install aplikasi <ArrowUpRight size={14}/></button></div></div><footer className="people-home-foot"><span>AIS People <i/>Dibuat untuk tim Anda.</span><button onClick={vm.logout}><LogOut size={15}/>Keluar</button></footer>
+ </div>;
+}
