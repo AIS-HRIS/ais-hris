@@ -26,6 +26,7 @@ jobs:
         run: |
           npm run test:workspace
           npm run test:analytics
+          npm run test:attendance
       - name: Build static HRIS
         run: npm run build:pages
       - name: Verify Pages paths and PWA scope

@@ -133,3 +133,9 @@ npm run preview:pages
 ```
 
 Preview hasil statis: http://localhost:4173/ais-hris/. Entry Pages menggunakan view dan model aplikasi yang sama. Alamat aset, manifest, service worker, ikon dan halaman offline mendukung subdirektori repository. Penerbitan Pages tidak menyediakan API, database server atau sinkronisasi data; penyimpanan demo tetap lokal di browser pada origin GitHub Pages, terpisah dari localhost.
+
+### Keandalan clock-in
+
+Preflight attendance memeriksa baseline dan waktu jaringan melalui model `attendancePreflight.js`. Waktu diambil dari header Date respons HTTPS pada origin aplikasi; Age CDN ikut diperhitungkan. Ini acuan jam demo, bukan pencatatan atau otorisasi server produksi. Jika jaringan/waktu tidak tersedia atau jam perangkat melewati toleransi 120 detik, attendance ditolak dengan pesan yang dapat dicoba kembali. Tidak ada fallback GPS atau baseline simulasi.
+
+Tombol selalu melepas status loading ketika preflight gagal. Status dibedakan menjadi pemeriksaan baseline, pemeriksaan waktu, pencarian GPS, dan penyimpanan. Permintaan waktu, pemeriksaan baseline dan GPS mempunyai batas tunggu; kamera yang tidak siap menampilkan petunjuk dan tetap bisa ditutup. `npm run test:attendance` menguji error jaringan, jam menyimpang, baseline kosong, proses yang tidak memberi respons, serta retry.

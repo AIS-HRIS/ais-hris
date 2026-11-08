@@ -3,6 +3,7 @@
 import FormSurface, { Field } from "../views/components/FormSurface";
 import { CameraCapture } from "../views/attendance/AttendanceExperience";
 import { readAttendanceLocation } from "../models/attendanceLocation";
+import { prepareAttendance, withAttendanceDeadline } from "../models/attendancePreflight";
 import { getBaseline, assertAttendanceBaseline } from "../models/baseline";
 import { useAttendanceIdentity } from "../views/attendance/AttendanceIdentity";
 import { duplicateRequest } from "../models/requestRules";
@@ -1182,7 +1183,7 @@ function KameraSelfie({
   onBatal
 }) {
   return <div className="attendance-camera-modal" role="dialog" aria-modal="true" aria-label={judul}><div className="attendance-camera-sheet"><header><span className="utility-label">ATTENDANCE / DAILY SELFIE</span><h2>{judul}</h2><p>Ambil selfie langsung untuk catatan attendance hari ini.</p></header><CameraCapture kind="daily" onCancel={onBatal} onCapture={async capture => {
-        const thumb = await captureToThumb(capture.photo);
+        const thumb = await withAttendanceDeadline(() => captureToThumb(capture.photo), 8000, "Foto belum berhasil diproses. Tutup kamera lalu ambil ulang.");
         await onAmbil(thumb);
       }} /></div></div>;
 }
@@ -1204,44 +1205,34 @@ function PunchButton({
   const [error, setError] = useState(null);
   const bg = disabled ? T.line : tone === "accent" ? T.accent : T.good;
 
-  // 1) Cek jam server dulu, 2) buka kamera depan live, 3) setelah foto diambil → cek lokasi & catat.
+  const [stage, setStage] = useState('baseline');
+  const starting = useRef(false);
   const mulai = async () => {
-    setError(null);
-    try {
-      const baseline = await getBaseline(identity?.id);
-      if (!baseline) {
-        setError("Daftarkan foto baseline sebelum melakukan attendance.");
-        return;
-      }
-    } catch (e) {
-      setError(e.message);
-      return;
-    }
+    if (starting.current || busy || kamera) return;
+    starting.current = true;
     setBusy(true);
     setError(null);
-    const timeCheck = await validateDeviceTime();
-    if (timeCheck.ok === false) {
+    try {
+      timeRef.current = await prepareAttendance(identity?.id, {onStage: setStage});
+      setKamera(true);
+    } catch (e) {
+      setError(e.message || "Attendance belum dapat dimulai. Silakan coba lagi.");
+    } finally {
+      starting.current = false;
       setBusy(false);
-      const selisih = timeCheck.driftSec >= 60 ? `${Math.round(timeCheck.driftSec / 60)} menit` : `${Math.round(timeCheck.driftSec)} detik`;
-      setError(`Absen ditolak — jam perangkat Anda menyimpang ${selisih} dari waktu server. Nonaktifkan pengaturan jam manual dan aktifkan "waktu otomatis" di perangkat, lalu coba lagi.`);
-      return;
     }
-    if (timeCheck.ok === null) {
-      setBusy(false);
-      setError("Absen ditolak — waktu server tidak dapat diverifikasi. Pastikan perangkat terhubung internet, lalu coba lagi.");
-      return;
-    }
-    timeRef.current = timeCheck;
-    setKamera(true);
   };
   const setelahFoto = async thumb => {
     setKamera(false);
+    setBusy(true);
+    setStage("location");
     try {
       const timeCheck = timeRef.current || {
         serverTime: null,
         driftSec: 0
       };
       const loc = await getLocation(locationTarget, locationMode);
+      setStage("saving");
       if (loc.simulated) throw new Error("Lokasi asli belum tersedia. Izinkan GPS lalu coba kembali. Attendance tidak dicatat dengan lokasi simulasi.");
       if (locationTarget) {
         const dist = haversineMeters(Number(loc.lat), Number(loc.lng), locationTarget.lat, locationTarget.lng);
@@ -1256,7 +1247,7 @@ function PunchButton({
           selfieSumber: "kamera_depan_langsung",
           location: loc,
           distance: Math.round(dist),
-          serverTime: timeCheck.serverTime,
+          serverTime: timeCheck.serverTime == null ? null : timeCheck.serverTime + (timeCheck.measuredAt == null ? 0 : Math.max(0, performance.now() - timeCheck.measuredAt)),
           driftSec: Math.round(timeCheck.driftSec)
         });
       } else {
@@ -1264,7 +1255,7 @@ function PunchButton({
           selfie: thumb,
           selfieSumber: "kamera_depan_langsung",
           location: loc,
-          serverTime: timeCheck.serverTime,
+          serverTime: timeCheck.serverTime == null ? null : timeCheck.serverTime + (timeCheck.measuredAt == null ? 0 : Math.max(0, performance.now() - timeCheck.measuredAt)),
           driftSec: Math.round(timeCheck.driftSec)
         });
       }
@@ -1275,7 +1266,7 @@ function PunchButton({
     }
   };
   return <div>
-      <button disabled={disabled || busy} onClick={mulai} style={{
+      <button disabled={disabled || busy || kamera} onClick={mulai} style={{
       width: "100%",
       display: "flex",
       alignItems: "center",
@@ -1300,7 +1291,7 @@ function PunchButton({
       e.currentTarget.style.transform = "scale(1)";
     }} className="ais-button ais-button--primary ais-flex-layout">
         {busy ? <RefreshCcw size={20} className="spin" /> : <Icon size={20} />}
-        {busy ? "Memproses…" : label}
+        {busy ? ({baseline:"Memeriksa baseline…",time:"Memeriksa waktu…",location:"Mencari lokasi GPS…",saving:"Menyimpan attendance…"}[stage] || "Memproses…") : label}
       </button>
       {sub && !disabled && !error && <div style={{
       ...FI,
@@ -14370,7 +14361,7 @@ function AppInti({
   const [menuOpen, setMenuOpen] = useState(false);
   const addRecord = async rec => {
     if (rec.empId !== identity.id) throw new Error("Identitas attendance tidak sesuai akun.");
-    const baseline = await getBaseline(identity.id);
+    const baseline = await withAttendanceDeadline(() => getBaseline(identity.id), 10000, "Pemeriksaan baseline terlalu lama. Coba kembali.");
     const checked = assertAttendanceBaseline(rec, baseline);
     await setLog([...log, checked]);
   };
